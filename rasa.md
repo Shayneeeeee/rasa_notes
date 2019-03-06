@@ -450,9 +450,53 @@ Processors The `processors` field contains the name of components that altered t
 
 #### 从反馈中提升模型
 
+一旦有一个版本的机器人在运行，rasa nlu服务器会把每一条请求记录存在目录parse下的文件里，默认情况下，这些文件保存在文件夹日志中。
+
+```
+{
+  "user_input":{
+    "entities":[]   ],
+    "intent":{
+      "confidence":0.32584617693743012,
+      "name":"restaurant_search"
+    },
+    "text":"nice thai places",
+    "intent_ranking":[ ... ]
+  },
+  ...
+  "model":"default",
+  "log_time":1504092543.036279
+}
+```
+
+用户所说的内容是改进模型的最佳训练数据来源，必须手动完成每个预测并在把这些数据添加到训练集之前纠正，上面的例子是说，thai没有被当作一个菜（应该是泰国菜）。
+
 #### 评估模型
 
+rasa nlu有一个评估模块，机器学习中的标准技术是将一些数据作为测试集分开，可以用下面这个命令查看模型预测测试用例的情况
 
+```
+python -m rasa_nlu.evaluate \
+    --data data/examples/rasa/demo-rasa.json \
+    --model projects/default/model_20180323-145833
+```
+
+--data 是指训练数据
+
+--model 是指训练模型
+
+假如没有独立的测试集，可以使用交叉验证来估计模型的优化程度。运行--mode crossvalidation这个评估脚本。（交叉验证标志）
+
+```
+python -m rasa_nlu.evaluate \
+    --data data/examples/rasa/demo-rasa.json \
+    --config sample_configs/config_spacy.yml \
+    --mode crossvalidation
+```
+
+ 但是在这个模式下不能指定模型model，因为将针对每个交叉验证折叠对部分数据进行新模型培训（because a new model will be trained on part of the data for every cross-validation fold.）。
+
+#### 意图分类
 
 ### 杀死端口号
 
